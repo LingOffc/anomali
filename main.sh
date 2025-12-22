@@ -1,7 +1,14 @@
 #!/bin/bash
 
-BASE_URL="https://raw.githubusercontent.com/LingOffc/main/main"
+# ================== COLOR ==================
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m'
 
+# ================== CONFIG ==================
+BASE_URL="https://raw.githubusercontent.com/LingOffc/anomali/main"
 SCRIPTS=(
   "Finix1.sh"
   "Finix2.sh"
@@ -20,41 +27,69 @@ SCRIPTS=(
   "Finix15.sh"
 )
 
+# ================== BANNER ==================
+banner() {
 clear
-echo "=============================="
-echo "        FINIX INSTALLER       "
-echo "=============================="
+echo -e "${BLUE}[+] =============================================== [+]${NC}"
+echo -e "${BLUE}[+]                                                 [+]${NC}"
+echo -e "${BLUE}[+]               FINIX AUTO INSTALLER              [+]${NC}"
+echo -e "${BLUE}[+]               © LingOffc Official               [+]${NC}"
+echo -e "${BLUE}[+]                                                 [+]${NC}"
+echo -e "${RED}[+] =============================================== [+]${NC}"
+echo
+}
+
+# ================== MENU ==================
+show_menu() {
+banner
+echo -e "${YELLOW}PILIH MENU INSTALL :${NC}"
+echo
 
 i=1
 for s in "${SCRIPTS[@]}"; do
-  echo "$i) $s"
+  printf "${GREEN}%2d.${NC} %s\n" "$i" "$s"
   ((i++))
 done
 
-echo "0) Keluar"
 echo
-read -p "Pilih menu: " pilih
-
-[[ "$pilih" == "0" ]] && exit 0
-
-if ! [[ "$pilih" =~ ^[0-9]+$ ]]; then
-  echo "Input harus angka"
-  exit 1
-fi
-
-index=$((pilih - 1))
-script="${SCRIPTS[$index]}"
-
-if [[ -z "$script" ]]; then
-  echo "Menu tidak valid"
-  exit 1
-fi
-
-echo "Menjalankan $script ..."
-curl -fsSL "$BASE_URL/$script" -o "/tmp/$script" || {
-  echo "Gagal download script"
-  exit 1
+echo -e "${RED} 0.${NC} Keluar"
+echo
+read -p "Masukkan pilihan: " pilih
 }
 
-chmod +x "/tmp/$script"
-bash "/tmp/$script"
+# ================== MAIN ==================
+while true; do
+  show_menu
+
+  [[ "$pilih" == "0" ]] && echo -e "${YELLOW}Keluar...${NC}" && exit 0
+
+  if ! [[ "$pilih" =~ ^[0-9]+$ ]]; then
+    echo -e "${RED}Input harus angka!${NC}"
+    sleep 2
+    continue
+  fi
+
+  index=$((pilih - 1))
+  script="${SCRIPTS[$index]}"
+
+  if [[ -z "$script" ]]; then
+    echo -e "${RED}Menu tidak valid!${NC}"
+    sleep 2
+    continue
+  fi
+
+  echo
+  echo -e "${BLUE}[+] Menjalankan ${GREEN}$script${NC}"
+  echo -e "${BLUE}[+] Mengunduh script...${NC}"
+
+  curl -fsSL "$BASE_URL/$script" -o "/tmp/$script" || {
+    echo -e "${RED}[!] Gagal download script${NC}"
+    sleep 2
+    continue
+  }
+
+  chmod +x "/tmp/$script"
+  clear
+  bash "/tmp/$script"
+  read -p "Tekan ENTER untuk kembali ke menu..."
+done
